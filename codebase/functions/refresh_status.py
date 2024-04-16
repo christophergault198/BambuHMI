@@ -27,7 +27,7 @@ def refresh_status(self):
     remaining_time = APIClient.get_state('sensor.x1c_00m09a351100110_remaining_time')
     self.remainingTimeLabel.setText(f"Remaining Time: {remaining_time}")
 
-    gcode_filename = APIClient.get_state('sensor.x1c_00m09a351100110_gcode_filename')
+    gcode_filename = APIClient.get_state('sensor.x1c_00m09a351100110_task_name')
     if gcode_filename:
         self.gcodeFilenameLabel.setText(f"GCode Filename: {gcode_filename}")
     else:

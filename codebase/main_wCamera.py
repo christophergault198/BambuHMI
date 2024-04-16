@@ -10,7 +10,7 @@ class LiveCameraView(QWidget):
         super(LiveCameraView, self).__init__(parent)
         self.setWindowTitle("Live Camera")
         self.setGeometry(100, 100, 640, 480)
-        self.vlc_instance = vlc.Instance('--verbose=1')
+        self.vlc_instance = vlc.Instance()
         self.player = self.vlc_instance.media_player_new()
 
         # Create a basic layout
@@ -39,8 +39,8 @@ class LiveCameraView(QWidget):
     def updateMedia(self):
         token = refresh_camera_tokens()
         media_url = f'http://192.168.9.62:8123/api/camera_proxy/camera.192_168_9_78?token={token}'
-        # Increase caching value (e.g., to 3000 milliseconds)
-        media = self.vlc_instance.media_new(media_url, 'network-caching=3000')
+        # Increase caching value (e.g., to 30000 milliseconds, or 15 seconds)
+        media = self.vlc_instance.media_new(media_url, 'network-caching=15000')
         self.player.set_media(media)
         if not self.player.is_playing():
             self.player.play()

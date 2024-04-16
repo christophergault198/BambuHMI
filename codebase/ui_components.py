@@ -1,6 +1,7 @@
 import sys
 import matplotlib.pyplot as plt
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QHBoxLayout, QProgressBar, QMessageBox, QDialog, QVBoxLayout, QCheckBox
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QHBoxLayout, QProgressBar, QMessageBox, QDialog, QVBoxLayout, QCheckBox, QMenu, QAction, QApplication
+from PyQt5.QtGui import QFont, QFontDatabase
 from PyQt5.QtCore import QTimer  # Import QTimer
 from PyQt5.QtWebEngineWidgets import QWebEngineView  # Add this import at the beginning
 from PyQt5.QtCore import QUrl
@@ -19,6 +20,9 @@ import subprocess  # Import subprocess at the beginning of the file
 class BambuLabHMI(QWidget):
     def __init__(self):
         super().__init__()
+        QFontDatabase.addApplicationFont("./fonts/Roboto-Regular.ttf")
+
+        QApplication.setFont(QFont('Roboto', 11))  # Set the application-wide font to Roboto, size 11
         self.initUI()
         self.initRefreshTimer()  # Initialize the refresh timer
         self.showMQTTModePopup()  # Show MQTT mode popup at startup
@@ -49,7 +53,7 @@ class BambuLabHMI(QWidget):
         return False
 
     def initUI(self):
-        self.setWindowTitle('Bambu Lab X1C Control')
+        self.setWindowTitle('BambuHMI 2.0')
         self.setGeometry(100, 100, 440, 680)
         self.setStyleSheet("QWidget { background-color: #333; color: #999; } QPushButton { font-weight: bold; } QLabel { font-size: 14px; }")
 
@@ -58,7 +62,6 @@ class BambuLabHMI(QWidget):
         
         self.setupControls(mainLayout)
         self.setupTemperatureGraph(mainLayout)
-      #  self.setupTemperatureGauge(mainLayout)
         self.setupProgressGauge(mainLayout)  # Add this line to setup the temperature gauge
         self.setupEStopButton(mainLayout)
         
@@ -100,23 +103,39 @@ class BambuLabHMI(QWidget):
         bottomButtonsLayout.addWidget(self.openCameraButton)
         
         self.setupLightToggleButton(bottomButtonsLayout)
-        self.setupLogsPageButton(bottomButtonsLayout)
-        
-        # Add a button to start the VNC initializer
-        self.startVNCButton = QPushButton('Start VNC', self)
-        self.startVNCButton.clicked.connect(self.startVNCInitializer)
-        mainLayout.addWidget(self.startVNCButton)  # Assuming mainLayout is your main layout
-
-        self.startSSHButton = QPushButton('Start SSH', self)
-        self.startSSHButton.clicked.connect(self.startBambuHMISSHCommander)
-        mainLayout.addWidget(self.startSSHButton) 
         
         # Add the bottom buttons layout to the main layout
-        mainLayout.addLayout(bottomButtonsLayout)
+        mainLayout.addLayout(bottomButtonsLayout)	
+
+        # Create a horizontal layout for the top right buttons
+        topRightLayout = QHBoxLayout()
+        self.setupLogsPageButton(topRightLayout)  # Add the "Show Error Log" button
+        self.setupToolsMenuButton(topRightLayout)  # Add the "Tools" button
+        mainLayout.addLayout(topRightLayout)  # Add the top right layout to your main layout
 
         self.setLayout(mainLayout)
 
         print("HMI Initialized")
+
+    def setupToolsMenuButton(self, layout):
+        # Create the main button that will host the menu
+        self.toolsMenuButton = QPushButton('Tools', self)
+        layout.addWidget(self.toolsMenuButton)  # Add the button to your layout
+
+        # Create a QMenu
+        self.toolsMenu = QMenu(self)
+        
+        # Add actions to the menu
+        self.startVNCAction = QAction('Start VNC', self)
+        self.startVNCAction.triggered.connect(self.startVNCInitializer)
+        self.toolsMenu.addAction(self.startVNCAction)
+        
+        self.startSSHAction = QAction('Open Commander', self)
+        self.startSSHAction.triggered.connect(self.startBambuHMISSHCommander)
+        self.toolsMenu.addAction(self.startSSHAction)
+        
+        # Attach the menu to the button
+        self.toolsMenuButton.setMenu(self.toolsMenu)
 
     def startVNCInitializer(self):
         # Method to start the hmi_vncinit.py script
@@ -181,29 +200,13 @@ class BambuLabHMI(QWidget):
         controlLayout.setSpacing(10)
         
         self.status_label = QLabel('Status: Unknown')
-        self.status_label.setStyleSheet("QLabel { color: #FFC107; }")  # Amber color for the status label
+        self.status_label.setStyleSheet("QLabel { color: #FFFFFF; }")  # White color for the status label
         controlLayout.addWidget(self.status_label)
-        
-        self.refresh_button = QPushButton('Force Refresh')
-        self.refresh_button.setStyleSheet("QPushButton { background-color: #007BFF; color: #FFF; }")  # Blue color for the button
-        self.refresh_button.clicked.connect(self.refresh_status)
-        controlLayout.addWidget(self.refresh_button)
-        
-        self.print_button = QPushButton('Pre Print')
+
+        self.print_button = QPushButton('Prepare Printer')
         self.print_button.setStyleSheet("QPushButton { background-color: #28A745; color: #FFF; }")  # Green color for the button
         self.print_button.clicked.connect(self.showPrintChecklistDialog)
         controlLayout.addWidget(self.print_button)
-        
-        self.fan_button = QPushButton('RFS')
-        self.fan_button.setStyleSheet("QPushButton { background-color: #DC3545; color: #FFF; }")  # Red color for the button
-        self.fan_button.clicked.connect(self.toggle_fan)
-        controlLayout.addWidget(self.fan_button)
-        
-        # Pause Print Button
-        self.pausePrintButton = QPushButton('Pause Print')
-        self.pausePrintButton.setStyleSheet("QPushButton { background-color: #FFA500; color: #FFF; }")  # Orange color for the button
-        self.pausePrintButton.clicked.connect(self.pause_print)
-        controlLayout.addWidget(self.pausePrintButton)
         
         # Resume Print Button
         self.resumePrintButton = QPushButton('Resume Print')
@@ -211,14 +214,33 @@ class BambuLabHMI(QWidget):
         self.resumePrintButton.clicked.connect(self.resume_print)
         controlLayout.addWidget(self.resumePrintButton)
 
+        # Pause Print Button
+        self.pausePrintButton = QPushButton('Pause Print')
+        self.pausePrintButton.setStyleSheet("QPushButton { background-color: #FFA500; color: #FFF; }")  # Orange color for the button
+        self.pausePrintButton.clicked.connect(self.pause_print)
+        controlLayout.addWidget(self.pausePrintButton)
+        
+        
+        
+        self.fan_button = QPushButton('RFS')
+        self.fan_button.setStyleSheet("QPushButton { background-color: #6c757d; color: #FFF; }")  # Grey color for the button
+        self.fan_button.clicked.connect(self.toggle_fan)
+        controlLayout.addWidget(self.fan_button)
+
         self.errorFetchButton = QPushButton('Fetch Errors')
         self.errorFetchButton.setStyleSheet("QPushButton { background-color: #6c757d; color: #FFF; }")  # Grey color for the button
         self.errorFetchButton.clicked.connect(self.fetch_errors)
-        controlLayout.addWidget(self.errorFetchButton)
+        #controlLayout.addWidget(self.errorFetchButton)
 
-        self.errorLogButton = QPushButton('Show Error Log')
+        self.errorLogButton = QPushButton('HMS Error')
+        self.errorLogButton.setStyleSheet("QPushButton { background-color: #6c757d; color: #FFF; }")  # Grey color for the button
         self.errorLogButton.clicked.connect(self.showErrorLog)
         controlLayout.addWidget(self.errorLogButton)
+
+        self.refresh_button = QPushButton('Force Refresh')
+        self.refresh_button.setStyleSheet("QPushButton { background-color: #007BFF; color: #FFF; }")  # Blue color for the button
+        self.refresh_button.clicked.connect(self.refresh_status)
+        controlLayout.addWidget(self.refresh_button)
 
         layout.addLayout(controlLayout)
         
@@ -239,11 +261,11 @@ class BambuLabHMI(QWidget):
         self.plate_temp_label = QLabel('Build Plate Temp: --°C')
         tempDisplayLayout.addWidget(self.plate_temp_label)
 
-        self.chamber_label = QLabel('RFS: --%')
-        tempDisplayLayout.addWidget(self.chamber_label)
-
         self.chamber_temp = QLabel('Chamber Temp: --°C')
         tempDisplayLayout.addWidget(self.chamber_temp)
+
+        self.chamber_label = QLabel('RFS: --%')
+        tempDisplayLayout.addWidget(self.chamber_label)
 
         # Add the horizontal layout to the main layout
         layout.addLayout(tempDisplayLayout)
@@ -267,11 +289,6 @@ class BambuLabHMI(QWidget):
 
     def setupTemperatureGauge(self, layout):
         # Create a QLabel to display the text for the temperature gauge
-     #   self.temperatureGaugeLabel = QLabel('Thermal Load')
-     #   self.temperatureGaugeLabel.setStyleSheet("QLabel { color: #FFF; font-size: 12px; }")  # Customize the label appearance
-     #   layout.addWidget(self.temperatureGaugeLabel)
-
-        # Create a QProgressBar as a simple linear gauge for temperature
         self.temperatureGauge = QProgressBar(self)
         self.temperatureGauge.setMaximum(300)  # Assuming 300°C as the maximum temperature for demonstration
         self.temperatureGauge.setStyleSheet("QProgressBar {border: 2px solid grey; border-radius: 5px; text-align: center; } QProgressBar::chunk {background-color: white; width: 20px; }")
@@ -279,7 +296,7 @@ class BambuLabHMI(QWidget):
 
     def setupProgressGauge(self, layout):
         # Create a QLabel to display the text for the progress gauge
-        self.progressGaugeLabel = QLabel('Print Progress')
+        self.progressGaugeLabel = QLabel()
         self.progressGaugeLabel.setStyleSheet("QLabel { color: #FFF; font-size: 12px; }")  # Customize the label appearance
         layout.addWidget(self.progressGaugeLabel)
 
@@ -310,10 +327,6 @@ class BambuLabHMI(QWidget):
         self.chamber_label.setText(f"RFS: {APIClient.get_temperature('sensor.x1c_00m09a351100110_chamber_fan_speed')}%")
         self.chamber_temp.setText(f"Chamber Temp: {chamber_temp}°C")
         
-        # Update the temperature gauge with the nozzle temperature
-      #  self.temperatureGauge.setValue(int(nozzle_temp))
-
-        #self.updateTemperatureGraph()
 
     def setupTemperatureGraph(self, layout):
         # Replace the existing setupTemperatureGraph method with this
@@ -391,6 +404,10 @@ class PrintChecklistDialog(QDialog):
         self.bedLeveledCheck = QCheckBox("Print bed leveled")
         self.filamentLoadedCheck = QCheckBox("Filament loaded")
         self.nozzleCleanCheck = QCheckBox("Nozzle clean")
+        self.chamberTempCheck = QCheckBox("Chamber temperature within 30-45c")
+        self.axiswarmupCheck = QCheckBox("Axis warmup gcode run complete")
+        self.heaterCheck = QCheckBox("Heater check complete")
+        self.coolingCheck = QCheckBox("Cooling fan running")
         
         # Material usage display
         self.materialUsageLabel = QLabel("Estimated Material Usage: --")
@@ -398,14 +415,18 @@ class PrintChecklistDialog(QDialog):
         # self.materialUsageLabel.setText(f"Estimated Material Usage: {calculateMaterialUsage()}g")
         
         # Start print button
-        self.startPrintButton = QPushButton("Start Print")
+        self.startPrintButton = QPushButton("Printer Prepared")
         self.startPrintButton.clicked.connect(self.on_start_print)
         
         # Adding widgets to the layout
         layout.addWidget(self.checklistLabel)
         layout.addWidget(self.bedLeveledCheck)
         layout.addWidget(self.filamentLoadedCheck)
-        layout.addWidget(self.nozzleCleanCheck)
+        layout.addWidget(self.nozzleCleanCheck) 
+        layout.addWidget(self.chamberTempCheck)
+        layout.addWidget(self.axiswarmupCheck)
+        layout.addWidget(self.heaterCheck)
+        layout.addWidget(self.coolingCheck)
         layout.addWidget(self.materialUsageLabel)
         layout.addWidget(self.startPrintButton)
         
@@ -415,6 +436,11 @@ class PrintChecklistDialog(QDialog):
         # Check if all checklist items are checked
         if self.bedLeveledCheck.isChecked() and self.filamentLoadedCheck.isChecked() and self.nozzleCleanCheck.isChecked():
             self.accept()  # Close the dialog and proceed
+            
+            # Save completion timestamp to a text file
+            with open('checklist_completion_log.txt', 'a') as file:
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                file.write(f"Checklist completed at: {timestamp}\n")
         else:
             # Show a message or indication that all items must be checked
             QMessageBox.warning(self, "Checklist Incomplete", "Please complete all checklist items before starting the print.")
