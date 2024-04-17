@@ -133,6 +133,10 @@ class BambuLabHMI(QWidget):
         self.startSSHAction = QAction('Open Commander', self)
         self.startSSHAction.triggered.connect(self.startBambuHMISSHCommander)
         self.toolsMenu.addAction(self.startSSHAction)
+
+        self.startRIVAction = QAction('Start RIV', self)
+        self.startRIVAction.triggered.connect(self.startRIV)
+        self.toolsMenu.addAction(self.startRIVAction)
         
         # Attach the menu to the button
         self.toolsMenuButton.setMenu(self.toolsMenu)
@@ -144,6 +148,10 @@ class BambuLabHMI(QWidget):
     def startBambuHMISSHCommander(self):
         # Method to start the hmi_vncinit.py script
         subprocess.Popen(['python', 'functions/BambuHMI_SSHCommander/main.py'], shell=False)
+
+    def startRIV(self):
+        # Method to start the hmi_vncinit.py script
+        subprocess.Popen(['python', 'functions/RIV/bhmi_riv-0.1.py'], shell=False)
 
     def setupLightToggleButton(self, layout):
         # Create a QPushButton for toggling the light

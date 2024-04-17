@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 from paramiko import SSHClient, AutoAddPolicy
 import threading
-from commands import screen_restart_service, CameraDebug, HomeXYZ, HeatBed_Set100c, HeatBed_Set0c
+from commands import screen_restart_service, CameraDebug, HomeXYZ, HeatBed_Set100c, HeatBed_Set0c, MoveXPositive, MoveXNegative, MoveYPositive, MoveYNegative, MoveZPositive, MoveZNegative
 
 class SSHClientGUI:
     def __init__(self, master):
@@ -61,6 +61,10 @@ class SSHClientGUI:
         self.heatbed_setOFF_button = tk.Button(self.cmd_frame, text="HeatBed SetOFF", command=self.heatbed_setOFF, bg='#555', fg='white')  # Adjust button background and text color
         self.heatbed_setOFF_button.pack(side=tk.LEFT)
 
+        # XYZ Control Button
+        self.xyz_control_button = tk.Button(self.cmd_frame, text="XYZ Control", command=self.open_xyz_control_window, bg='#555', fg='white')
+        self.xyz_control_button.pack(side=tk.LEFT)
+
         # Output Frame
         self.output = scrolledtext.ScrolledText(master, state='disabled', bg='#333', fg='white')  # Adjust scrolledtext background and text color
         self.output.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
@@ -111,6 +115,43 @@ class SSHClientGUI:
         self.pass_entry.delete(0, tk.END)
         self.pass_entry.insert(0, "a8d11ef407b8")
         self.connect()
+
+    def open_xyz_control_window(self):
+        xyz_window = tk.Toplevel(self.master)
+        xyz_window.title()
+        xyz_window.configure(background='#333')
+
+         # Add buttons for XYZ control in the new window
+        tk.Button(xyz_window, text="Move Z+", command=lambda: MoveZPositive(self), bg='#555', fg='white').pack(pady=2)
+        tk.Button(xyz_window, text="Move Z-", command=lambda: MoveZNegative(self), bg='#555', fg='white').pack(pady=2)
+
+        # Main frame for XYZ control
+        main_frame = tk.Frame(xyz_window, bg='#333')
+        main_frame.pack(pady=20, padx=20)
+
+        # Frames for directional buttons
+        top_frame = tk.Frame(main_frame, bg='#333')
+        top_frame.pack(side=tk.TOP)
+
+        middle_frame = tk.Frame(main_frame, bg='#333')
+        middle_frame.pack(side=tk.TOP)
+
+        bottom_frame = tk.Frame(main_frame, bg='#333')
+        bottom_frame.pack(side=tk.TOP)
+
+        # Top buttons (Y+)
+        tk.Button(top_frame, text="Y +10", command=lambda: MoveYPositive(self), bg='#555', fg='white').pack(side=tk.RIGHT, padx=5)
+        # Middle buttons (X- and X+)
+        tk.Button(middle_frame, text="X -10", command=lambda: MoveXNegative(self), bg='#555', fg='white').pack(side=tk.LEFT, padx=5)
+
+        # Bottom buttons (Y-)
+        tk.Button(bottom_frame, text="Y -10", command=lambda: MoveYNegative(self), bg='#555', fg='white').pack(side=tk.LEFT, padx=5)
+
+        tk.Button(middle_frame, text="Home", command=self.home_xyz, bg='#555', fg='white').pack(side=tk.LEFT, padx=5)
+
+        tk.Button(middle_frame, text="X +10", command=lambda: MoveXPositive(self), bg='#555', fg='white').pack(side=tk.LEFT, padx=5)
+
+
 
     def execute_command(self, cmd):
         try:
