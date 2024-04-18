@@ -1,5 +1,6 @@
 import re
 from api_client import APIClient
+from config import LIVE_CAMERA_PRINTER_IP
 
 def extract_camera_token(log_text):
     # Regular expression to find HMS ERRORS lines
@@ -15,6 +16,6 @@ def extract_camera_token(log_text):
 # Example usage
 if __name__ == "__main__":
     # Assuming 'log_text' contains the content from the provided log
-    log_text = APIClient.fetchCameraTokens('camera.192_168_9_78')
+    log_text = APIClient.fetchCameraTokens(f'camera.{LIVE_CAMERA_PRINTER_IP}')
     extract_camera_token(log_text)
 

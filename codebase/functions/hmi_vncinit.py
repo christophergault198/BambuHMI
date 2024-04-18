@@ -2,6 +2,7 @@ import paramiko
 import tkinter as tk
 from tkinter import messagebox
 import threading  # Import threading at the beginning of your file
+from config import PRINTER_USERNAME, PRINTER_PASSWORD, PRINTER_IP
 
 def ssh_command_execution(hostname, port, username, password, command):
     try:
@@ -21,14 +22,14 @@ def ssh_command_execution(hostname, port, username, password, command):
 
 def on_run_command():
     def delayed_start():
-        hostname = '192.168.9.78'
+        hostname = PRINTER_IP
         port = 22
-        username = 'bblp'  # Replace with the actual username
-        password = '4e1cf6eb'  # Replace with the actual password
+        username = PRINTER_USERNAME  # Replace with the actual username
+        password = PRINTER_PASSWORD  # Replace with the actual password
         command = '/usr/bin/start_bbl_screen_vnc.sh'
         # Run ssh_command_execution in a separate thread
         threading.Thread(target=ssh_command_execution, args=(hostname, port, username, password, command)).start()
-        print("VNC Started")
+        print("VNC Started, window will close in 30 seconds.")
 
     # Delay VNC start by 1000 milliseconds (1 second) after the UI loads
     root.after(1000, delayed_start)

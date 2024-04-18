@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, QTimer  # Updated import
 from ui_components import BambuLabHMI
 from functions.refresh_tokens import refresh_camera_tokens
+from config import LIVE_CAMERA_PRINTER_IP, HA_URL
 
 class LiveCameraView(QWidget):
     def __init__(self, parent=None):
@@ -38,7 +39,7 @@ class LiveCameraView(QWidget):
 
     def updateMedia(self):
         token = refresh_camera_tokens()
-        media_url = f'http://192.168.9.62:8123/api/camera_proxy/camera.192_168_9_78?token={token}'
+        media_url = f'{HA_URL}/api/camera_proxy/camera.{LIVE_CAMERA_PRINTER_IP}?token={token}'
         # Increase caching value (e.g., to 30000 milliseconds, or 15 seconds)
         media = self.vlc_instance.media_new(media_url, 'network-caching=15000')
         self.player.set_media(media)

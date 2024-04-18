@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox, QInputDialog
 from api_client import APIClient
+from config import PRINTER_ID
 
 #RFS = Recirculating Filter System
 def toggle_fan(self):
@@ -12,8 +13,8 @@ def toggle_fan(self):
         percentage, ok = QInputDialog.getInt(self, "Set RFS Speed", "Enter RFS speed percentage:", min=0, max=100)
         if ok:
             # User entered a value and pressed OK, proceed with setting the fan speed
-            APIClient.toggle_fan('fan.x1c_00m09a351100110_chamber_fan')
-            APIClient.set_fan('fan.x1c_00m09a351100110_chamber_fan', percentage)
+            APIClient.toggle_fan(f'fan.x1c_{PRINTER_ID}_chamber_fan')
+            APIClient.set_fan(f'fan.x1c_{PRINTER_ID}_chamber_fan', percentage)
 
         print(f"Debug: RFS updated to: {percentage}") #Debug
             

@@ -16,6 +16,7 @@ from functions.stateSpeed import SelectionWindow
 from functions.fetch_errors import extract_hms_errors
 from functions.refresh_tokens import refresh_camera_tokens
 import subprocess  # Import subprocess at the beginning of the file
+from config import PRINTER_ID, HA_FRIENDLY_NAME, PRINTER_HA_WEB_VIEW, LOGS_HA_WEB_VIEW
 
 class BambuLabHMI(QWidget):
     def __init__(self):
@@ -48,7 +49,7 @@ class BambuLabHMI(QWidget):
             self.indicatorLight.setVisible(False)
 
     def isPrinterIdle(self):
-        current_stage = APIClient.get_state('sensor.x1c_00m09a351100110_current_stage')
+        current_stage = APIClient.get_state(f'sensor.x1c_{PRINTER_ID}_current_stage')
         return current_stage == 'idle'
         return False
 
@@ -133,6 +134,10 @@ class BambuLabHMI(QWidget):
         self.startSSHAction = QAction('Open Commander', self)
         self.startSSHAction.triggered.connect(self.startBambuHMISSHCommander)
         self.toolsMenu.addAction(self.startSSHAction)
+
+        self.startRIVAction = QAction('Start RIV', self)
+        self.startRIVAction.triggered.connect(self.startRIV)
+        self.toolsMenu.addAction(self.startRIVAction)
         
         # Attach the menu to the button
         self.toolsMenuButton.setMenu(self.toolsMenu)
@@ -145,6 +150,10 @@ class BambuLabHMI(QWidget):
         # Method to start the hmi_vncinit.py script
         subprocess.Popen(['python', 'functions/BambuHMI_SSHCommander/main.py'], shell=False)
 
+    def startRIV(self):
+        # Method to start the hmi_vncinit.py script
+        subprocess.Popen(['python', 'functions/RIV/bhmi_riv-0.1.py'], shell=False)
+
     def setupLightToggleButton(self, layout):
         # Create a QPushButton for toggling the light
         self.lightToggleButton = QPushButton('Toggle Chamber Light', self)
@@ -154,12 +163,12 @@ class BambuLabHMI(QWidget):
 
     def toggleChamberLight(self):
         # Call the APIClient method to toggle the light state
-        APIClient.toggle_light('light.x1c_00m09a351100110_chamber_light')
+        APIClient.toggle_light(f'light.x1c_{PRINTER_ID}_chamber_light')
         self.updateLightToggleButton()  # Update the button after toggling the light
         print("Toggled chamber light")
 
     def updateLightToggleButton(self):
-        light_state = APIClient.get_light_state('light.x1c_00m09a351100110_chamber_light')
+        light_state = APIClient.get_light_state(f'light.x1c_{PRINTER_ID}_chamber_light')
         if light_state == 'on':
             self.lightToggleButton.setText("Turn Chamber Light Off")
         elif light_state == 'off':
@@ -172,7 +181,7 @@ class BambuLabHMI(QWidget):
         self.speedSelectionWindow.show()
 
     def showMQTTModePopup(self):
-        mqtt_mode = APIClient.get_state('sensor.solidus_printer_mqtt_connection_mode')
+        mqtt_mode = APIClient.get_state(f'sensor.{HA_FRIENDLY_NAME}_mqtt_connection_mode')
         QMessageBox.information(self, "MQTT Connection Mode", f"MQTT Mode: {mqtt_mode}", QMessageBox.Ok)
         print(f"MQTT Mode: {mqtt_mode}")
 
@@ -187,7 +196,7 @@ class BambuLabHMI(QWidget):
         # Function to activate the emergency stop
         print(f"{datetime.now()} !!!EMERGENCY STOP ACTIVATED!!!\n"
               f"Operator has activated the emergency stop. The print will be stopped immediately.")
-        APIClient.statePOST('button.x1c_00m09a351100110_stop_printing')  # Assuming APIClient.button.x1c_00m09a351100110_stop_printing is the correct way to call the stop printing function
+        APIClient.statePOST(f'button.x1c_{PRINTER_ID}_stop_printing')  # Assuming APIClient.button.x1c_00m09a351100110_stop_printing is the correct way to call the stop printing function
         QMessageBox.information(self, "Emergency Stop Activated", "The print has been stopped.", QMessageBox.Ok)
 
     def initRefreshTimer(self):
@@ -316,22 +325,22 @@ class BambuLabHMI(QWidget):
         toggle_fan(self)
 
     def refresh_temperatures(self):
-        nozzle_temp = APIClient.get_temperature('sensor.x1c_00m09a351100110_nozzle_temperature')
-        plate_temp = APIClient.get_temperature('sensor.x1c_00m09a351100110_bed_temperature')
-        heatbrake_speed = APIClient.get_temperature('sensor.x1c_00m09a351100110_heatbreak_fan_speed')
-        chamber_temp = APIClient.get_temperature('sensor.x1c_00m09a351100110_chamber_temperature')
+        nozzle_temp = APIClient.get_temperature(f'sensor.x1c_{PRINTER_ID}_nozzle_temperature')
+        plate_temp = APIClient.get_temperature(f'sensor.x1c_{PRINTER_ID}_bed_temperature')
+        heatbrake_speed = APIClient.get_temperature(f'sensor.x1c_{PRINTER_ID}_heatbreak_fan_speed')
+        chamber_temp = APIClient.get_temperature(f'sensor.x1c_{PRINTER_ID}_chamber_temperature')
 
         self.heatbreak_label.setText(f"Heatbrake: {heatbrake_speed}%")
         self.nozzle_temp_label.setText(f"Nozzle Temp: {nozzle_temp}°C")
         self.plate_temp_label.setText(f"Build Plate Temp: {plate_temp}°C")
-        self.chamber_label.setText(f"RFS: {APIClient.get_temperature('sensor.x1c_00m09a351100110_chamber_fan_speed')}%")
+        self.chamber_label.setText(f"RFS: {APIClient.get_temperature(f'sensor.x1c_{PRINTER_ID}_chamber_fan_speed')}%")
         self.chamber_temp.setText(f"Chamber Temp: {chamber_temp}°C")
         
 
     def setupTemperatureGraph(self, layout):
         # Replace the existing setupTemperatureGraph method with this
         self.temperatureGraphWebView = QWebEngineView()
-        url = "http://homeassistant.local:8123/solidus-printer/0"
+        url = PRINTER_HA_WEB_VIEW
         self.temperatureGraphWebView.load(QUrl(url))
         layout.addWidget(self.temperatureGraphWebView)
         self.temperatureGraphWebView.show()
@@ -344,11 +353,11 @@ class BambuLabHMI(QWidget):
 
     def showLogsPage(self):
         # Change the WebView to show the logs page
-        url = "http://homeassistant.local:8123/config/logs"
+        url = LOGS_HA_WEB_VIEW
         self.temperatureGraphWebView.load(QUrl(url))
 
     def updateProgressGauge(self):
-        self.ProgressGauge.setValue(int(APIClient.get_state('sensor.x1c_00m09a351100110_print_progress')))
+        self.ProgressGauge.setValue(int(APIClient.get_state(f'sensor.x1c_{PRINTER_ID}_print_progress')))
 
     def updateStageLabelAppearance(self, stage):
         # Customize the appearance based on the stage
@@ -370,13 +379,13 @@ class BambuLabHMI(QWidget):
 
     def pause_print(self):
         # Call the API client's method to pause the print
-        APIClient.statePOST('button.x1c_00m09a351100110_pause_printing')
+        APIClient.statePOST(f'button.x1c_{PRINTER_ID}_pause_printing')
         QMessageBox.information(self, "Print Paused", "The print has been paused.", QMessageBox.Ok)
         print("Print paused")
     
     def resume_print(self):
         # Adjusted API call to match Home Assistant's expected service call format
-        APIClient.statePOST('button.x1c_00m09a351100110_resume_printing')
+        APIClient.statePOST(f'button.x1c_{PRINTER_ID}_resume_printing')
         QMessageBox.information(self, "Print Resumed", "The print has been resumed.", QMessageBox.Ok)
         print("Print resumed")
 
