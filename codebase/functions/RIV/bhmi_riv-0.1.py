@@ -8,6 +8,7 @@ import hashlib
 import torch
 from torchvision import models, transforms
 import threading  # Import the threading module
+from config import PRINTER_PASSWORD, PRINTER_USERNAME, PRINTER_IP
 
 # Load a pre-trained Faster R-CNN model
 model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
@@ -64,10 +65,10 @@ def fetch_image():
     global last_image_hash  # Use the global variable to track the hash
 
     # SSH details
-    ssh_host = '192.168.9.78' #CHANGE ME
+    ssh_host = PRINTER_IP #CHANGE ME
     ssh_port = 22
-    ssh_user = 'root'
-    ssh_password = 'a8d11ef407b8' #CHANGE ME
+    ssh_user = PRINTER_USERNAME
+    ssh_password = PRINTER_PASSWORD #CHANGE ME
     remote_file_path = '/userdata/log/cam/capture/calib_14.jpg'
 
     # Establish an SSH client and connect to the server

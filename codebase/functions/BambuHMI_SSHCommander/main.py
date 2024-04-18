@@ -1,8 +1,11 @@
+import sys
+import os
 import tkinter as tk
 from tkinter import scrolledtext
 from paramiko import SSHClient, AutoAddPolicy
 import threading
 from commands import screen_restart_service, CameraDebug, HomeXYZ, HeatBed_Set100c, HeatBed_Set0c, MoveXPositive, MoveXNegative, MoveYPositive, MoveYNegative, MoveZPositive, MoveZNegative
+from config import PRINTER_IP, PRINTER_USERNAME, PRINTER_PASSWORD
 
 class SSHClientGUI:
     def __init__(self, master):
@@ -109,11 +112,11 @@ class SSHClientGUI:
 
     def quick_connect_as_root(self):
         self.host_entry.delete(0, tk.END)
-        self.host_entry.insert(0, "192.168.9.78")
+        self.host_entry.insert(0, PRINTER_IP)
         self.user_entry.delete(0, tk.END)
-        self.user_entry.insert(0, "root")
+        self.user_entry.insert(0, PRINTER_USERNAME)
         self.pass_entry.delete(0, tk.END)
-        self.pass_entry.insert(0, "a8d11ef407b8")
+        self.pass_entry.insert(0, PRINTER_PASSWORD)
         self.connect()
 
     def open_xyz_control_window(self):

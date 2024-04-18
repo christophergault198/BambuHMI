@@ -9,32 +9,32 @@ def screen_restart_service(self):
             self.append_output("Not connected to any server.")
 
 
-def CameraDebug(self):
-        cmd = "/usr/bin/camera_debug.sh"
+def CameraDebug(self):                   #NEED TO FIX - BROKEN
+        cmd = "/usr/bin/camera_debug.sh -opt 10"
         if self.ssh_client:
             command_thread = threading.Thread(target=self.execute_command, args=(cmd,))
             command_thread.start()
         else:
             self.append_output("Not connected to any server.")
 
-def HomeXYZ(self):
-        cmd = "/usr/bin/homexyz.sh"
+def HomeXYZ(self):                      
+        cmd = "/usr/bin/home_xyz.sh"
         if self.ssh_client:
             command_thread = threading.Thread(target=self.execute_command, args=(cmd,))
             command_thread.start()
         else:
             self.append_output("Not connected to any server.")
 
-def HeatBed_Set100c(self):
-        cmd = "/usr/bin/heatbed_set100c.sh"
+def HeatBed_Set100c(self):              
+        cmd = "/usr/bin/heatbed_set.sh -s 100"
         if self.ssh_client:
             command_thread = threading.Thread(target=self.execute_command, args=(cmd,))
             command_thread.start()
         else:
             self.append_output("Not connected to any server.")
 
-def HeatBed_Set0c(self):
-        cmd = "/usr/bin/heatbed_setOFF.sh"
+def HeatBed_Set0c(self):               
+        cmd = "/usr/bin/heatbed_set.sh -s 0"
         if self.ssh_client:
             command_thread = threading.Thread(target=self.execute_command, args=(cmd,))
             command_thread.start()

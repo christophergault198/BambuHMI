@@ -1,12 +1,13 @@
 from api_client import APIClient
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
+from config import PRINTER_ID
 
 def stateSpeed(speed):
     if speed == 'standard':
-        APIClient.stateSelect('select.x1c_00m09a351100110_printing_speed', 'standard')
+        APIClient.stateSelect(f'select.x1c_{PRINTER_ID}_printing_speed', 'standard')
     elif speed == 'silent':
-        APIClient.stateSelect('select.x1c_00m09a351100110_printing_speed', 'silent')
+        APIClient.stateSelect(f'select.x1c_{PRINTER_ID}_printing_speed', 'silent')
 
 class SelectionWindow(QWidget):
     def __init__(self):
