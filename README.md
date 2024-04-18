@@ -6,11 +6,11 @@
 PreReqs:
 1) X1C Printer connected to a HA instance (https://github.com/greghesp/ha-bambulab)
 2) X1Plus Firmware installed on your X1C Printer (https://github.com/X1Plus/X1Plus/wiki/Installation-Guide)
-3) pyInstaller installed. (pip install pyinstaller)
 
 # How to use:
-1) Launch setup.py and configure the HA and X1C printer settings and credentials.
-2) Click 'Save Config' then 'Install Files to Printer'.
-3) Optional - Create single app with "pyinstaller main_wCamera.py --icon geometric.ico", be sure to move the fonts & functions folder to the root of the newly built exe.
+1) Use pip to install the necessary dependencies from the requirements.txt file (pip install -r requirements.txt)
+2) Launch setup.py and configure the HA and X1C printer settings and credentials.
+3) Click 'Save Config' then 'Install Files to Printer'.
+4) Optional - Create single app with "pyinstaller main_wCamera.py --icon geometric.ico", be sure to move the fonts & functions folder to the root of the newly built exe.
 
 *Make sure to set static addresses for both your printer and HA instance.
