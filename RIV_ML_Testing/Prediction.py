@@ -1,46 +1,32 @@
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras.preprocessing import image
+import numpy as np
 
-# Function to load the Keras model
-def load_model(model_path):
-   
-    try:
-        model = keras.models.load_model(model_path)
-        print(f"Model loaded successfully from: {model_path}")
-        return model
-    except OSError as e:
-        print(f"Error loading model: {e}")
-        return None
+# Load the model
+new_model = tf.keras.models.load_model('Build_Plate_Detection.keras')
 
-def preprocess_image(image_path, target_size=(180, 180)):
-    img = image.load_img(image_path, target_size=target_size)
-    img_array = image.img_to_array(img)
-    img_array = img_array / 255.0  # Normalize pixel values to [0, 1]
-    img_array = tf.expand_dims(img_array, axis=0)  # Add a batch dimension
-    return img_array
+# Image dimensions
+img_height, img_width = 180, 180 
 
-# Function to make predictions using the model
-def predict(model, image_path):
-    preprocessed_image = preprocess_image(image_path)
-    predictions = model.predict(preprocessed_image)
+# Show the model architecture
+new_model.summary()
 
-    # Assuming it's a classification model
-    predicted_class_index = tf.argmax(predictions[0])
-    predicted_probability = tf.nn.softmax(predictions[0])[predicted_class_index].numpy()
+# Image URL
+image_url = input("Enter the URL of the image: ")
 
-    return [f"Predicted class index: {predicted_class_index}", f"Probability: {predicted_probability:.4f}"]
+# Download and load the image
+image_path = tf.keras.utils.get_file('Red_Sunflower', origin=image_url)
+img = tf.keras.utils.load_img(image_path, target_size=(img_height, img_width))
+img_array = tf.keras.utils.img_to_array(img)
+img_array = tf.expand_dims(img_array, 0)  # Create a batch
 
-if __name__ == "__main__":
-    # Load the Keras model (replace with your actual model path)
-    model = load_model("Build_Plate_Detection.keras")
+# Make predictions
+predictions = new_model.predict(img_array)
+score = tf.nn.softmax(predictions[0])
 
-    if model is not None:
-        # Get user input for image path
-        image_path = input("Enter the path to your image: ")
+# Class names
+class_names = ['itemoff', 'itemon']  # Assuming itemoff is class 0 and itemon is class 1
 
-        # Make predictions
-        predictions = predict(model, image_path)
-        print("Predictions:")
-        for prediction in predictions:
-            print(prediction)
+print(
+    "This image most likely belongs to {} with a {:.2f} percent confidence."
+    .format(class_names[np.argmax(score)], 100 * np.max(score))
+)
