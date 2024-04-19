@@ -41,17 +41,18 @@ def show_files():
     for file in files:
         listbox.insert(tk.END, file)
 
-root = tk.Tk()
-root.title("SD Upload Tool")
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.title("SD Upload Tool")
 
-upload_button = tk.Button(root, text="Upload File", command=browse_file)
-upload_button.pack()
+    upload_button = tk.Button(root, text="Upload File", command=browse_file)
+    upload_button.pack()
 
-list_files_button = tk.Button(root, text="List Files", command=show_files)
-list_files_button.pack()
+    list_files_button = tk.Button(root, text="List Files", command=show_files)
+    list_files_button.pack()
 
-listbox = Listbox(root)
-listbox.pack()
+    listbox = Listbox(root)
+    listbox.pack()
 
-root.mainloop()
+    root.mainloop()
 

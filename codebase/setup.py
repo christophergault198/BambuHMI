@@ -20,7 +20,8 @@ def copy_config():
     destinations = [
         'functions/BambuHMI_SSHCommander',
         'functions/RIV',
-        'functions/Tools/sd_upload_tool'
+        'functions/Tools/sd_upload_tool',
+        'functions'
     ]
     for dest in destinations:
         shutil.copy('config.py', dest)
