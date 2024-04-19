@@ -35,12 +35,18 @@ for image_file in random_images:
     predictions = new_model.predict(img_array)
     score = tf.nn.softmax(predictions[0])
 
-    # Class names
-    class_names = ['itemoff', 'itemon']  # itemoff is class 0 and itemon is class 1
+    # Accumulate confidence scores
+    total_scores += score.numpy()
 
-    print("Image:", image_file)
-    print(
-        "This image most likely belongs to {} with a {:.2f} percent confidence."
-        .format(class_names[np.argmax(score)], 100 * np.max(score))
-    )
-    print()
+# Calculate average confidence scores
+average_scores = total_scores / len(random_images)
+
+# Get the predicted class
+predicted_class_index = np.argmax(average_scores)
+class_names = ['itemoff', 'itemon']  # itemoff is class 0 and itemon is class 1
+predicted_class_label = class_names[predicted_class_index]
+
+print(
+    "The images most likely belong to {} with a {:.2f} percent confidence."
+    .format(predicted_class_label, 100 * np.max(average_scores))
+)
