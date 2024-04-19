@@ -7,7 +7,7 @@ import numpy as np
 new_model = tf.keras.models.load_model('Build_Plate_Detection.keras')
 
 # Image dimensions
-img_height, img_width = 224, 224  
+img_height, img_width = 224, 224
 
 # Show the model architecture
 new_model.summary()
@@ -18,8 +18,11 @@ folder_path = "toolhead_images"
 # List all files in the folder
 image_files = os.listdir(folder_path)
 
-# Randomly select two images
+# Randomly select ten images
 random_images = random.sample(image_files, 10)
+
+# Initialize variables to accumulate confidence scores
+total_scores = [0.0, 0.0] 
 
 for image_file in random_images:
     # Load the image
