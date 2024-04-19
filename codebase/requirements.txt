@@ -82,3 +82,4 @@ pytest==8.1.1
 python-dateutil==2.9.0.post0
 python-vlc==3.0.20123
 pywin32==306
+tensorflow==2.16.1
