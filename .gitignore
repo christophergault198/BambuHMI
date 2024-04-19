@@ -147,6 +147,7 @@ cython_debug/
 *.jpg
 *.db
 
+
 codebase\functions\BambuHMI_SSHCommander\config.py
 codebase\functions\config.py
 codebase\functions\RIV\config.py
