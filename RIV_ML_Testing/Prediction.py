@@ -2,6 +2,7 @@ import os
 import random
 import tensorflow as tf
 import numpy as np
+from PIL import ImageFile
 
 # Load the model
 new_model = tf.keras.models.load_model('Build_Plate_Detection.keras')
@@ -23,6 +24,8 @@ random_images = random.sample(image_files, 10)
 
 # Initialize variables to accumulate confidence scores
 total_scores = [0.0, 0.0] 
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 for image_file in random_images:
     # Load the image
