@@ -7,7 +7,7 @@ import numpy as np
 new_model = tf.keras.models.load_model('Build_Plate_Detection.keras')
 
 # Image dimensions
-img_height, img_width = 224, 224
+img_height, img_width = 224, 224  
 
 # Show the model architecture
 new_model.summary()
@@ -18,11 +18,8 @@ folder_path = "toolhead_images"
 # List all files in the folder
 image_files = os.listdir(folder_path)
 
-# Randomly select ten images
+# Randomly select two images
 random_images = random.sample(image_files, 10)
-
-# Initialize variables to accumulate confidence scores
-total_scores = [0.0, 0.0] 
 
 for image_file in random_images:
     # Load the image
@@ -35,23 +32,12 @@ for image_file in random_images:
     predictions = new_model.predict(img_array)
     score = tf.nn.softmax(predictions[0])
 
-<<<<<<< Updated upstream
-    # Accumulate confidence scores
-    total_scores += score.numpy()
-=======
     # Class names
-    class_names = ['itemon', 'itemoff']  # itemoff is class 1 and itemon is class 0 
->>>>>>> Stashed changes
+    class_names = ['itemon', 'itemoff']  # itemoff is class 0 and itemon is class 1
 
-# Calculate average confidence scores
-average_scores = total_scores / len(random_images)
-
-# Get the predicted class
-predicted_class_index = np.argmax(average_scores)
-class_names = ['itemoff', 'itemon']  # itemoff is class 0 and itemon is class 1
-predicted_class_label = class_names[predicted_class_index]
-
-print(
-    "The images most likely belong to {} with a {:.2f} percent confidence."
-    .format(predicted_class_label, 100 * np.max(average_scores))
-)
+    print("Image:", image_file)
+    print(
+        "This image most likely belongs to {} with a {:.2f} percent confidence."
+        .format(class_names[np.argmax(score)], 100 * np.max(score))
+    )
+    print()
