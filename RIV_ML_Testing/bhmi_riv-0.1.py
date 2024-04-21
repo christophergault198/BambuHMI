@@ -108,11 +108,13 @@ def fetch_image():
         # Start the PyTorch operations in a separate thread
         threading.Thread(target=process_image, args=(image_data,)).start()
 
-    # Schedule the fetch_image function to be called again after 5000 milliseconds
-    root.after(5000, fetch_image)
 
+def call_prediction_script():
     # Call the prediction.py script using subprocess
     subprocess.call(["python", "Prediction.py"])
+
+    # Schedule the fetch_image function to be called again after 5000 milliseconds
+    root.after(5000, fetch_image)
 
 # Create the main window
 root = tk.Tk()
