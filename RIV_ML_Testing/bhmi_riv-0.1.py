@@ -1,3 +1,4 @@
+import subprocess
 import tkinter as tk
 from PIL import Image, ImageTk, ImageDraw
 import paramiko
@@ -110,6 +111,9 @@ def fetch_image():
     # Schedule the fetch_image function to be called again after 5000 milliseconds
     root.after(5000, fetch_image)
 
+    # Call the prediction.py script using subprocess
+    subprocess.call(["python", "Prediction.py"])
+
 # Create the main window
 root = tk.Tk()
 root.title("BambuHMI Remote Image Viewer (RIV 0.1)")
@@ -125,4 +129,3 @@ fetch_button.pack()
 # Start the first image fetch and the Tkinter event loop
 fetch_image()  # Start fetching images immediately
 root.mainloop()
-

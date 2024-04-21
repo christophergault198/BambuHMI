@@ -43,7 +43,7 @@ average_scores = total_scores / len(random_images)
 
 # Get the predicted class
 predicted_class_index = np.argmax(average_scores)
-class_names = ['itemon', 'itemoff']  # itemoff is class 0 and itemon is class 1
+class_names = ['itemoff', 'itemon']  # itemoff is class 0 and itemon is class 1
 predicted_class_label = class_names[predicted_class_index]
 
 print(
