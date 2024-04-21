@@ -28,14 +28,13 @@ G1 E-[retraction_length] F1800
 G91 ; Set to relative positioning
 G1 Z2 F3000
 G1 X-25 F5000 ; Move X axis -15mm to position camera
-
+M400
 ;CaptureImage
 M960 S4 P1
 M973 S3 P1
 M973 S1
-G4 S1
+M400 P100
 M971 S1 P14
-G4 S1
 M960 S4 P0
 G1 E[retraction_length] F300
 G1 Z-2 F1000

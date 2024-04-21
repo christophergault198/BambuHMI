@@ -35,8 +35,13 @@ for image_file in random_images:
     predictions = new_model.predict(img_array)
     score = tf.nn.softmax(predictions[0])
 
+<<<<<<< Updated upstream
     # Accumulate confidence scores
     total_scores += score.numpy()
+=======
+    # Class names
+    class_names = ['itemon', 'itemoff']  # itemoff is class 1 and itemon is class 0 
+>>>>>>> Stashed changes
 
 # Calculate average confidence scores
 average_scores = total_scores / len(random_images)
