@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, send_file, redirect, url_for
 import sys
 import os
 from send_gcode import send_command
@@ -12,20 +12,21 @@ app = Flask(__name__)
 
 # Global variable to hold the current job name
 current_job_name = "None"
+# Global variable to hold the latest message
+latest_message = ""
 
 def update_current_job():
     global current_job_name
     while True:
         try:
-            with open('/userdata/Metadata/plate_1.json', 'r') as file:
+            with open('/userdata/print_ctx.json', 'r') as file:
                 data = json.load(file)
-                # Assuming the structure of the JSON remains consistent
-                name = data['bbox_objects'][0]['name']
-                current_job_name = name
+                # Adjusted to fetch 'subtask_name' as per the new JSON structure
+                subtask_name = data['subtask_name']
+                current_job_name = subtask_name
         except Exception as e:
             print(f"Error reading or parsing JSON file: {e}")
         time.sleep(10)
-
 @app.route('/')
 def printer_hmi():
     # Example printer details
@@ -36,14 +37,38 @@ def printer_hmi():
         'temperature': {
             'nozzle': 215,
             'bed': 60
-        }
+        },
+        'latest_message': latest_message  # Include the latest message
     }
     return render_template('index.html', details=printer_details)
 
 @app.route('/home_xyz_func', methods=['GET','POST'])
 def home_xyz_func():
+    global latest_message
     subprocess.run(["/usr/bin/home_xyz.sh"], shell=False)
-    return 'G-code command sent successfully'
+    latest_message = 'Home XYZ'
+    return redirect(url_for('printer_hmi'))
+
+@app.route('/preheat_100c', methods=['GET','POST']) #Bed Heat 100c ON
+def preheat_100c():
+    global latest_message
+    subprocess.run(["/usr/bin/heatbed_set.sh", "-s", "100"], shell=False)
+    latest_message = 'Preheat Activated - 100c'
+    return redirect(url_for('printer_hmi'))
+
+@app.route('/preheat_0c', methods=['GET','POST']) #Bed Heat 0c OFF
+def preheat_0c():
+    global latest_message
+    subprocess.run(["/usr/bin/heatbed_set.sh", "-s", "0"], shell=False)
+    latest_message = 'Preheat Deactivated'
+    return redirect(url_for('printer_hmi'))
+
+@app.route('/start_bbl_screen_vnc', methods=['GET','POST']) #Start VNC
+def start_bbl_screen_vnc():
+    global latest_message
+    subprocess.run(["/usr/bin/start_bbl_screen_vnc.sh"], shell=False)
+    latest_message = 'VNC Start'
+    return redirect(url_for('printer_hmi'))
 
 @app.route('/current_image')
 def current_image():
@@ -60,4 +85,3 @@ if __name__ == '__main__':
     # Start the background thread
     threading.Thread(target=update_current_job, daemon=True).start()
     app.run(host='0.0.0.0', port=5000)
-

@@ -38,12 +38,25 @@
         <p>Nozzle: {{ details.temperature.nozzle }}°C</p>
         <p>Bed: {{ details.temperature.bed }}°C</p>-->
         
-        <h3>Printer Control</h3>
-        <form action="/home_xyz_func" method="post">
-            <button type="submit">Home Printer</button>
-        </form>
-        
+
+        <div style="display: flex; justify-content: center; gap: 10px;">
+            <form action="/home_xyz_func" method="post">
+                <button type="submit">Home Printer</button>
+            </form>
+            <form action="/preheat_100c" method="post">
+                <button type="submit">Preheat On</button>
+            </form>
+            <form action="/preheat_0c" method="post">
+                <button type="submit">Preheat Off</button>
+            </form>
+            <form action="/start_bbl_screen_vnc" method="post">
+                <button type="submit">Start VNC</button>
+            </form>
+        </div>
+
+        <div>
+            <p>{{ details.latest_message }}</p>
+        </div>
     </div>
 </body>
 </html>
-
