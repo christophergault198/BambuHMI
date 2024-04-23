@@ -1,5 +1,4 @@
 import os
-import random
 import tensorflow as tf
 import numpy as np
 from PIL import ImageFile
@@ -16,40 +15,28 @@ new_model.summary()
 # Define the folder containing the images
 folder_path = "toolhead_images"
 
-# List all files in the folder
+# List all files in the folder and find the most recent one
 image_files = os.listdir(folder_path)
-
-# Randomly select ten images
-random_images = random.sample(image_files, 10)
-
-# Initialize variables to accumulate confidence scores
-total_scores = [0.0, 0.0] 
+most_recent_image = max(image_files, key=lambda x: os.path.getctime(os.path.join(folder_path, x)))
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-for image_file in random_images:
-    # Load the image
-    image_path = os.path.join(folder_path, image_file)
-    img = tf.keras.utils.load_img(image_path, target_size=(img_height, img_width))
-    img_array = tf.keras.utils.img_to_array(img)
-    img_array = tf.expand_dims(img_array, 0)  # Create a batch
+# Load the most recent image
+image_path = os.path.join(folder_path, most_recent_image)
+img = tf.keras.utils.load_img(image_path, target_size=(img_height, img_width))
+img_array = tf.keras.utils.img_to_array(img)
+img_array = tf.expand_dims(img_array, 0)  # Create a batch
 
-    # Make predictions
-    predictions = new_model.predict(img_array)
-    score = tf.nn.softmax(predictions[0])
-
-    # Accumulate confidence scores
-    total_scores += score.numpy()
-
-# Calculate average confidence scores
-average_scores = total_scores / len(random_images)
+# Make predictions
+predictions = new_model.predict(img_array)
+score = tf.nn.softmax(predictions[0])
 
 # Get the predicted class
-predicted_class_index = np.argmax(average_scores)
+predicted_class_index = np.argmax(score)
 class_names = ['itemoff', 'itemon']  # itemoff is class 0 and itemon is class 1
 predicted_class_label = class_names[predicted_class_index]
-
+print(most_recent_image)
 print(
-    "The images most likely belong to {} with a {:.2f} percent confidence."
-    .format(predicted_class_label, 100 * np.max(average_scores))
+    "The most recent image most likely belongs to {} with a {:.2f} percent confidence."
+    .format(predicted_class_label, 100 * np.max(score))
 )

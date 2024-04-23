@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Printer HMI</title>
+</head>
+<body>
+    <h1>3D Printer Status: {{ details.status }}</h1>
+    <p>Current Job: {{ details.current_job }}</p>
+    <p>Progress: {{ details.progress }}%</p>
+    <h2>Temperatures</h2>
+    <p>Nozzle: {{ details.temperature.nozzle }}°C</p>
+    <p>Bed: {{ details.temperature.bed }}°C</p>
+    
+    <h2>Printer Control</h2>
+    <form action="/home_printer" method="get">
+        <button type="submit">Home Printer</button>
+    </form>
+</body>
+</html>
