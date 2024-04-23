@@ -5,6 +5,9 @@
     <title>X1Plus WebHMI</title>
     <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
     <style>
+        body {
+            background-color: #a8a2a29c; /* Light grey background */
+        }
         .centered-content {
             display: flex;
             flex-direction: column;
@@ -13,6 +16,8 @@
             height: 100vh;
         }
     </style>
+    <script src="/noVNC/core/rfb.js"></script>
+    <script src="/noVNC/app/ui.js"></script>
     <script>
         function refreshImage() {
             var img = document.getElementById('liveImage');
@@ -25,6 +30,13 @@
             img.src = '/current_model_image?' + new Date().getTime();
         }
         setInterval(refreshModelImage, 180000); // Refresh every 180000 milliseconds (3 minutes)
+
+        window.onload = function() {
+            // Initialize noVNC without authentication
+            const rfb = new RFB(document.getElementById('vnc-display'), 'ws://192.168.9.78:5900');
+
+            rfb.scaleViewport = true; // Optional: Scale the viewport to fit the size of the container
+        };
     </script>
 </head>
 <body>
@@ -38,6 +50,7 @@
         <p>Nozzle: {{ details.temperature.nozzle }}°C</p>
         <p>Bed: {{ details.temperature.bed }}°C</p>-->
         
+        <div id="vnc-display" style="width: 800px; height: 600px;"></div>
 
         <div style="display: flex; justify-content: center; gap: 10px;">
             <form action="/home_xyz_func" method="post">
