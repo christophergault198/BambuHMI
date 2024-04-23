@@ -2,19 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>3D Printer HMI</title>
+    <title>X1Plus WebHMI</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <style>
+        .centered-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+    </style>
+    <script>
+        function refreshImage() {
+            var img = document.getElementById('liveImage');
+            img.src = '/current_image?' + new Date().getTime();
+        }
+        setInterval(refreshImage, 5000); // Refresh every 5000 milliseconds (5 seconds)
+
+        function refreshModelImage() {
+            var img = document.getElementById('modelImage');
+            img.src = '/current_model_image?' + new Date().getTime();
+        }
+        setInterval(refreshModelImage, 180000); // Refresh every 180000 milliseconds (3 minutes)
+    </script>
 </head>
 <body>
-    <h1>3D Printer Status: {{ details.status }}</h1>
-    <p>Current Job: {{ details.current_job }}</p>
-    <p>Progress: {{ details.progress }}%</p>
-    <h2>Temperatures</h2>
-    <p>Nozzle: {{ details.temperature.nozzle }}°C</p>
-    <p>Bed: {{ details.temperature.bed }}°C</p>
-    
-    <h2>Printer Control</h2>
-    <form action="/home_printer" method="get">
-        <button type="submit">Home Printer</button>
-    </form>
+    <div class="centered-content">
+        <!---<h1>3D Printer Status: {{ details.status }}</h1>-->
+        <h2>{{ details.current_job }}</h2>
+        <img id="liveImage" src="/current_image" alt="Current Image">
+        <img id="modelImage" src="/current_model_image" alt="Model Image" style="width: 200px; height: 200px;">
+        <!---<p>Progress: {{ details.progress }}%</p>
+        <h2>Temperatures</h2>
+        <p>Nozzle: {{ details.temperature.nozzle }}°C</p>
+        <p>Bed: {{ details.temperature.bed }}°C</p>-->
+        
+        <h3>Printer Control</h3>
+        <form action="/home_xyz_func" method="post">
+            <button type="submit">Home Printer</button>
+        </form>
+        
+    </div>
 </body>
 </html>
+
