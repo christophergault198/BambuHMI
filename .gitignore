@@ -148,7 +148,7 @@ cython_debug/
 *.db
 
 
-codebase\functions\BambuHMI_SSHCommander\config.py
-codebase\functions\config.py
-codebase\functions\RIV\config.py
-codebase\functions\Tools\sd_upload_tool\config.py
+bambuhmi_codebase\functions\BambuHMI_SSHCommander\config.py
+bambuhmi_codebase\functions\config.py
+bambuhmi_codebasefunctions\RIV\config.py
+bambuhmi_codebase\functions\Tools\sd_upload_tool\config.py
