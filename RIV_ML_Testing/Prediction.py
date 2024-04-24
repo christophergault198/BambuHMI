@@ -40,3 +40,4 @@ print(
     "The most recent image most likely belongs to {} with a {:.2f} percent confidence."
     .format(predicted_class_label, 100 * np.max(score))
 )
+

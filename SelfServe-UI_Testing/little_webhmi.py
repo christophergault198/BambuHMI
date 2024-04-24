@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_file, redirect, url_for
+from flask import Flask, render_template, send_file, redirect, url_for, request
 import sys
 import os
 from send_gcode import send_command
@@ -7,6 +7,7 @@ import subprocess
 import json
 import threading
 import time
+import requests
 
 app = Flask(__name__)
 
@@ -27,6 +28,7 @@ def update_current_job():
         except Exception as e:
             print(f"Error reading or parsing JSON file: {e}")
         time.sleep(10)
+
 @app.route('/')
 def printer_hmi():
     # Example printer details
@@ -38,7 +40,8 @@ def printer_hmi():
             'nozzle': 215,
             'bed': 60
         },
-        'latest_message': latest_message  # Include the latest message
+        'latest_message': latest_message,  # Include the latest message
+        'prediction': send_image_for_prediction('/userdata/log/cam/capture/calib_14.jpg')  # Get prediction result
     }
     return render_template('index.html', details=printer_details)
 
@@ -67,7 +70,7 @@ def preheat_0c():
 def start_bbl_screen_vnc():
     global latest_message
     subprocess.run(["/usr/bin/start_bbl_screen_vnc.sh"], shell=False)
-    latest_message = 'VNC Start'
+    latest_message = 'VNC Started'
     return redirect(url_for('printer_hmi'))
 
 @app.route('/current_image')
@@ -80,6 +83,21 @@ def current_model_image():
     image_path = '/userdata/log/cam/flc/report/ref_model.png'
     return send_file(image_path, mimetype='image/png')
 
+@app.route('/current_depthmap_image')
+def current_depthmap_image():
+    image_path = '/userdata/log/cam/flc/report/depth_map.png'
+    return send_file(image_path, mimetype='image/png')
+
+@app.route('/current_errmapdepth_image')
+def current_errmapdepth_image():
+    image_path = '/userdata/log/cam/flc/report/errmap_depth.png'
+    return send_file(image_path, mimetype='image/png')
+
+def send_image_for_prediction(image_path):
+    url = 'http://192.168.8.135:5001/predict'
+    files = {'image': open(image_path, 'rb')}
+    response = requests.post(url, files=files)
+    return response.json()
 
 if __name__ == '__main__':
     # Start the background thread

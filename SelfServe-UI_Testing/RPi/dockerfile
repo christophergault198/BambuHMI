@@ -1,0 +1,21 @@
+# Use an official TensorFlow runtime as a parent image
+FROM tensorflow/tensorflow:latest
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+# Copy the current directory contents into the container at /usr/src/app
+COPY . .
+
+# Install any needed packages specified in requirements.txt
+COPY requirements.txt /usr/src/app/
+RUN pip install --ignore-installed -r requirements.txt
+
+# Make port 5001 available to the world outside this container
+EXPOSE 5001
+
+# Define environment variable
+ENV NAME PredictionService
+
+# Run app.py when the container launches
+CMD ["python", "app.py"]
