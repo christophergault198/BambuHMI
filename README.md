@@ -1,7 +1,7 @@
 ![hmi_interface](https://github.com/christophergault198/BambuHMI/assets/116657484/00042aee-bcd0-4a71-a7ce-912b3d272a31)
-# BambuHMI_v2
- Dedicated HMI for Bambu printers running on HA and X1Plus firmware.
-
+# BambuHMI and X1Plus WebHMI
+ Dedicated and self served web based HMI for Bambu printers running on HA and/or the X1Plus firmware.
+*WebHMI coming soon...
 
 PreReqs:
 1) X1C Printer connected to a HA instance (https://github.com/greghesp/ha-bambulab)
