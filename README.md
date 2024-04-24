@@ -1,4 +1,11 @@
+![Screenshot 2024-04-24 111145](https://github.com/christophergault198/BambuHMI/assets/116657484/90b244ad-0040-4eed-984c-4cef83d6615e)
 ![hmi_interface](https://github.com/christophergault198/BambuHMI/assets/116657484/00042aee-bcd0-4a71-a7ce-912b3d272a31)
+
+
+https://github.com/christophergault198/BambuHMI/assets/116657484/96ba1e52-e2a6-44d9-aa73-67ae36cd53a2
+
+
+
 # BambuHMI and X1Plus WebHMI
  Dedicated and self served web based HMI for Bambu printers running on HA and/or the X1Plus firmware.
 *WebHMI coming soon...
