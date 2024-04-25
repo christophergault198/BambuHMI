@@ -97,7 +97,7 @@ def current_depthmap_image():
 def current_errmapdepth_image():
     image_path = '/userdata/log/cam/flc/report/errmap_depth.png'
     return send_file(image_path, mimetype='image/png')
-
+@app.route('/predict')
 def send_image_for_prediction(image_path):  
     try:
         url = 'http://192.168.8.135:5001/predict'
@@ -108,12 +108,9 @@ def send_image_for_prediction(image_path):
     except requests.exceptions.RequestException as e:  # This catches all exceptions related to the request
         print(f"Error connecting to the prediction service or timeout occurred: {e}")
         prediction_result = "Prediction server not found on the local network or is not currently running."
-        if 'Prediction Server Not Found on Local Network or is not currently running.' in prediction_result:
-            prediction_result = prediction_result.replace('Prediction Server Not Found on Local Network or is not currently running.', '')
         return prediction_result
 
 if __name__ == '__main__':
     # Start the background thread
     threading.Thread(target=update_current_job, daemon=True).start()
-    app.run(host='0.0.0.0', port=5000)
-
+    app.run(host='0.0.0.0', port=5001)

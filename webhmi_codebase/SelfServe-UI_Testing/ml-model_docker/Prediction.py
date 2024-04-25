@@ -42,8 +42,3 @@ def predict(image_path):
         "predicted_class": predicted_class_label,
         "confidence": f"{confidence:.2f}%"
     }
-
-# Example usage (comment out or remove in production)
-# if __name__ == "__main__":
-#     result = predict('path_to_your_image.jpg')
-#     print(result)
