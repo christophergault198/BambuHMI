@@ -37,7 +37,7 @@ def predict(image_path):
     predicted_class_index = np.argmax(score)
     predicted_class_label = class_names[predicted_class_index]
     confidence = 100 * np.max(score)
-
+    print(predicted_class_label, confidence)
     return {
         "predicted_class": predicted_class_label,
         "confidence": f"{confidence:.2f}%"
