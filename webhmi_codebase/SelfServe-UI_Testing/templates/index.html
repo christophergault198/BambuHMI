@@ -15,22 +15,26 @@
             align-items: center;
             height: 100vh;
         }
+        .dark-mode {
+            background-color: #333; /* Dark background */
+            color: white; /* Light text */
+        }
     </style>
     <script type="module" src="static/noVNC/core/rfb.js"></script>
     <script type="module" src="static/noVNC/app/ui.js"></script>
     <script>
         function fetchPrediction() {
-            fetch('/predict', { method: 'POST' })
+            fetch('/predict', { method:['POST'] })
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('predictionResult').innerText = 'Prediction: ' + data.prediction;
-                })
-                .catch(error => {
-                    console.error('Error fetching prediction:', error);
-                    document.getElementById('predictionResult').innerText = 'Prediction: Not Connected to ML Model';
                 });
+              // .catch(error => {
+              //      console.error('Error fetching prediction:', error);
+              //      document.getElementById('predictionResult').innerText = 'Prediction Error:' + error;
+              //  }); 
         }
-        setInterval(fetchPrediction, 5000);
+        setInterval(fetchPrediction, 10000); // Now checks every 10000 milliseconds (10 seconds)
 
         function refreshImage() {
             var img = document.getElementById('liveImage');
@@ -44,6 +48,11 @@
             img.src = '/current_model_image?' + new Date().getTime();
         }
         setInterval(refreshModelImage, 180000); // Refresh every 180000 milliseconds (3 minutes)
+
+        function toggleDarkMode() {
+            var body = document.body;
+            body.classList.toggle('dark-mode');
+        }
 
         window.onload = function() {
             // Initialize noVNC without authentication
@@ -67,13 +76,13 @@
             <img id="errmapdepthImage" src="/current_errmapdepth_image" alt="Errmapdepth Image" style="width: 200px; height: 200px;">
         </div>
         <div style="display: flex; justify-content: center; width: 100%;">
-            <p id="Prediction Result">Prediction Result: {{ details.prediction }}</p>
+            <p id="predictionResult">Prediction Result: {{ details.prediction }}</p>
         </div>
         <!---<p>Progress: {{ details.progress }}%</p>
         <h2>Temperatures</h2>
         <p>Nozzle: {{ details.temperature.nozzle }}°C</p>
         <p>Bed: {{ details.temperature.bed }}°C</p>-->
-        
+
         <!---<div id="vnc-display" style="width: 800px; height: 600px;"></div>-->
         <div>
             <p>{{ details.latest_message }}</p>
@@ -91,8 +100,10 @@
             <form action="/start_bbl_screen_vnc" method="post">
                 <button type="submit" style="font-size: 20px; padding: 10px 20px;">Start VNC</button>
             </form>
+            <button onclick="toggleDarkMode()" style="font-size: 14px; padding: 5px 10px; position: absolute; bottom: 10px; right: 10px;">Dark Mode</button>
         </div>
         
     </div>
 </body>
 </html>
+

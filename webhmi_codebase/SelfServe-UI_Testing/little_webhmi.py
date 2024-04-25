@@ -73,7 +73,7 @@ def start_bbl_screen_vnc():
     global latest_message
     try:
         latest_message = 'VNC Started'
-        subprocess.run(["/usr/bin/start_bbl_screen_vnc.sh"], shell=False, timeout=3)  # Add a timeout of 3 second and avoid callback because im lazy.
+        subprocess.run(["/usr/bin/start_bbl_screen_vnc.sh"], shell=True, timeout=3)  # Add a timeout of 3 second and avoid callback because im lazy.
     except subprocess.TimeoutExpired:
         latest_message = 'VNC Started' #This is odd but true, it does start the VNC server. Again, lazy mode.
     return redirect(url_for('printer_hmi'))
