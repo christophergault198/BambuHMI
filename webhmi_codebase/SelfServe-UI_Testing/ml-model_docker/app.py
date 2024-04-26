@@ -15,7 +15,7 @@ def predict():
     prediction = Prediction.predict(image_path)
     
     # Return the prediction result
-    return jsonify(prediction)
+    return jsonify({'prediction': prediction})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

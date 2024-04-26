@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_file, redirect, url_for, request
+from flask import Flask, render_template, send_file, redirect, url_for, jsonify
 import sys
 import os
 from send_gcode import send_command
@@ -104,11 +104,10 @@ def send_image_for_prediction(image_path):
         files = {'image': open(image_path, 'rb')}
         response = requests.post(url, files=files, timeout=5)
         prediction_result = response.json()
-        return prediction_result
+        return jsonify({'prediction': prediction_result})  # Ensure this matches the expected format
     except requests.exceptions.RequestException as e:  # This catches all exceptions related to the request
         print(f"Error connecting to the prediction service or timeout occurred: {e}")
-        prediction_result = "Prediction server not found on the local network or is not currently running."
-        return prediction_result
+        return jsonify({'prediction': "Prediction server not found or not running"})
 
 if __name__ == '__main__':
     # Start the background thread
