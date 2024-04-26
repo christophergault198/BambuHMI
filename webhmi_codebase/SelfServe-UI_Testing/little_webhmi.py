@@ -1,13 +1,9 @@
 from flask import Flask, render_template, send_file, redirect, url_for, jsonify
-import sys
-import os
-from send_gcode import send_command
-from dds import publisher, subscribe
 import subprocess
 import json
 import threading
 import time
-import requests
+
 
 app = Flask(__name__)
 
@@ -25,7 +21,6 @@ def update_current_job():
                 # Adjusted to fetch 'subtask_name' as per the new JSON structure
                 subtask_name = data['subtask_name']
                 current_job_name = subtask_name
-                send_image_for_prediction('/userdata/log/cam/capture/calib_14.jpg')
         except Exception as e:
             print(f"Error reading or parsing JSON file: {e}")
         time.sleep(10)
@@ -42,7 +37,6 @@ def printer_hmi():
             'bed': 60
         },
         'latest_message': latest_message,  # Include the latest message
-        'prediction': send_image_for_prediction('/userdata/log/cam/capture/calib_14.jpg')  # Get prediction result
     }
     return render_template('index.html', details=printer_details)
 
@@ -97,17 +91,7 @@ def current_depthmap_image():
 def current_errmapdepth_image():
     image_path = '/userdata/log/cam/flc/report/errmap_depth.png'
     return send_file(image_path, mimetype='image/png')
-@app.route('/predict')
-def send_image_for_prediction(image_path):  
-    try:
-        url = 'http://192.168.8.135:5001/predict'
-        files = {'image': open(image_path, 'rb')}
-        response = requests.post(url, files=files, timeout=5)
-        prediction_result = response.json()
-        return jsonify({'prediction': prediction_result})  # Ensure this matches the expected format
-    except requests.exceptions.RequestException as e:  # This catches all exceptions related to the request
-        print(f"Error connecting to the prediction service or timeout occurred: {e}")
-        return jsonify({'prediction': "Prediction server not found or not running"})
+
 
 if __name__ == '__main__':
     # Start the background thread
