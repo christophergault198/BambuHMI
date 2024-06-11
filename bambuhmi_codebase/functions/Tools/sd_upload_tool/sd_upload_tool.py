@@ -34,10 +34,10 @@ def list_files_in_directory(server_folder, server_address, username, password):
 
 def browse_file():
     file_path = filedialog.askopenfilename()
-    upload_file_to_server(file_path, '/opt/python/bin', ip, username, password)
+    upload_file_to_server(file_path, '/opt/python/bin/templates', ip, username, password)
 
 def show_files():
-    files = list_files_in_directory('/opt/python/bin', ip, username, password)
+    files = list_files_in_directory('/opt/python/bin/templates', ip, username, password)
     for file in files:
         listbox.insert(tk.END, file)
 
