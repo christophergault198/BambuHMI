@@ -1,3 +1,0 @@
-/opt/python/bin/python3 /mnt/sdcard/x1plus/get-pip.py
-/opt/python/bin/python3 pip install flask
-/opt/python/bin/python3 little_webhmi.py
