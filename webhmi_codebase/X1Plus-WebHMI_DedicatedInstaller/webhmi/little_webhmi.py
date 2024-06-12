@@ -1,99 +1,112 @@
-from flask import Flask, render_template, send_file, redirect, url_for, jsonify
+# aiohttp variant
+import aiohttp
+from aiohttp import web
+import asyncio
 import subprocess
 import json
 import threading
-import time
+import aiohttp_jinja2
+import jinja2
+import os
 
-
-app = Flask(__name__)
+# Print the current working directory for debugging
+print("Current working directory:", os.getcwd())
 
 # Global variable to hold the current job name
 current_job_name = "None"
 # Global variable to hold the latest message
 latest_message = ""
 
-def update_current_job():
+async def update_current_job():
     global current_job_name
     while True:
         try:
             with open('/userdata/print_ctx.json', 'r') as file:
                 data = json.load(file)
-                # Adjusted to fetch 'subtask_name' as per the new JSON structure
                 subtask_name = data['subtask_name']
                 current_job_name = subtask_name
         except Exception as e:
             print(f"Error reading or parsing JSON file: {e}")
-        time.sleep(10)
+        await asyncio.sleep(10)
 
-@app.route('/')
-def printer_hmi():
-    # Example printer details
+@aiohttp_jinja2.template('index.html')
+async def printer_hmi(request):
     printer_details = {
         'status': 'Printing',
-        'current_job': current_job_name,  # Use the global variable
+        'current_job': current_job_name,
         'progress': 75,
         'temperature': {
             'nozzle': 215,
             'bed': 60
         },
-        'latest_message': latest_message,  # Include the latest message
+        'latest_message': latest_message,
     }
-    return render_template('index.html', details=printer_details)
+    return {'details': printer_details}
 
-
-@app.route('/home_xyz_func', methods=['GET','POST'])
-def home_xyz_func():
+async def home_xyz_func(request):
     global latest_message
     subprocess.run(["/usr/bin/home_xyz.sh"], shell=False)
     latest_message = 'Home XYZ'
-    return redirect(url_for('printer_hmi'))
+    raise web.HTTPFound('/')
 
-@app.route('/preheat_100c', methods=['GET','POST']) #Bed Heat 100c ON
-def preheat_100c():
+async def preheat_100c(request):
     global latest_message
     subprocess.run(["/usr/bin/heatbed_set.sh", "-s", "100"], shell=False)
     latest_message = 'Preheat Activated - 100c'
-    return redirect(url_for('printer_hmi'))
+    raise web.HTTPFound('/')
 
-@app.route('/preheat_0c', methods=['GET','POST']) #Bed Heat 0c OFF
-def preheat_0c():
+async def preheat_0c(request):
     global latest_message
     subprocess.run(["/usr/bin/heatbed_set.sh", "-s", "0"], shell=False)
     latest_message = 'Preheat Deactivated'
-    return redirect(url_for('printer_hmi'))
+    raise web.HTTPFound('/')
 
-@app.route('/start_bbl_screen_vnc', methods=['GET','POST']) #Start VNC
-def start_bbl_screen_vnc():
+async def start_bbl_screen_vnc(request):
     global latest_message
     try:
         latest_message = 'VNC Started'
-        subprocess.run(["/usr/bin/start_bbl_screen_vnc.sh"], shell=True, timeout=3)  # Add a timeout of 3 second and avoid callback because im lazy.
+        subprocess.run(["/usr/bin/start_bbl_screen_vnc.sh"], shell=True, timeout=3)
     except subprocess.TimeoutExpired:
-        latest_message = 'VNC Started' #This is odd but true, it does start the VNC server. Again, lazy mode.
-    return redirect(url_for('printer_hmi'))
+        latest_message = 'VNC Started'
+    raise web.HTTPFound('/')
 
-@app.route('/current_image')
-def current_image():
+async def current_image(request):
     image_path = '/userdata/log/cam/capture/calib_14.jpg'
-    return send_file(image_path, mimetype='image/jpeg')
+    return web.FileResponse(image_path)
 
-@app.route('/current_model_image')
-def current_model_image():
+async def current_model_image(request):
     image_path = '/userdata/log/cam/flc/report/ref_model.png'
-    return send_file(image_path, mimetype='image/png')
+    return web.FileResponse(image_path)
 
-@app.route('/current_depthmap_image')
-def current_depthmap_image():
+async def current_depthmap_image(request):
     image_path = '/userdata/log/cam/flc/report/depth_map.png'
-    return send_file(image_path, mimetype='image/png')
+    return web.FileResponse(image_path)
 
-@app.route('/current_errmapdepth_image')
-def current_errmapdepth_image():
+async def current_errmapdepth_image(request):
     image_path = '/userdata/log/cam/flc/report/errmap_depth.png'
-    return send_file(image_path, mimetype='image/png')
+    return web.FileResponse(image_path)
 
+app = web.Application()
+# Use an absolute path to the templates directory
+template_path = os.path.join(os.path.dirname(__file__), 'templates')
+aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(template_path))
+
+# Add static file route
+static_path = os.path.join(os.path.dirname(__file__), 'static')
+app.router.add_static('/static/', static_path)
+
+app.router.add_get('/', printer_hmi)
+app.router.add_post('/home_xyz_func', home_xyz_func)
+app.router.add_post('/preheat_100c', preheat_100c)
+app.router.add_post('/preheat_0c', preheat_0c)
+app.router.add_post('/start_bbl_screen_vnc', start_bbl_screen_vnc)
+app.router.add_get('/current_image', current_image)
+app.router.add_get('/current_model_image', current_model_image)
+app.router.add_get('/current_depthmap_image', current_depthmap_image)
+app.router.add_get('/current_errmapdepth_image', current_errmapdepth_image)
+
+# Start the background thread for updating the current job
+threading.Thread(target=lambda: asyncio.run(update_current_job()), daemon=True).start()
 
 if __name__ == '__main__':
-    # Start the background thread
-    threading.Thread(target=update_current_job, daemon=True).start()
-    app.run(host='0.0.0.0', port=5001)
+    web.run_app(app, host='0.0.0.0', port=5001)
