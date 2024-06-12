@@ -6,18 +6,74 @@
     <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
     <style>
         body {
-            background-color: #a8a2a29c; /* Light grey background */
+            background-color: #f0f0f0; /* Light grey background */
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
         }
-        .centered-content {
+        .container {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        header, footer {
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+        .centered-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .image-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .image-container img {
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .buttons button, .buttons form button {
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .buttons button:hover, .buttons form button:hover {
+            background-color: #555;
+            color: white;
         }
         .dark-mode {
-            background-color: #333; /* Dark background */
-            color: white; /* Light text */
+            background-color: #333;
+            color: white;
+        }
+        .dark-mode header, .dark-mode footer {
+            background-color: #222;
         }
     </style>
     <script>
@@ -37,53 +93,48 @@
             var body = document.body;
             body.classList.toggle('dark-mode');
         }
-
-      //  window.onload = function() {
-            // Initialize noVNC without authentication
-        //    const rfb = new RFB(document.getElementById('vnc-display'), 'ws://192.168.9.78:5900');
-        //    rfb.scaleViewport = true; // Optional: Scale the viewport to fit the size of the container
-        //};
     </script>
 </head>
 <body>
-    <div class="centered-content">
-        <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
-            <img src="/static/images/logo.png" alt="Logo" style="width: 200px; height: auto; margin-right: 25px;">
-            <h2>{{ details.current_job }}</h2>
+    <header>
+        <h1>X1Plus WebHMI</h1>
+    </header>
+    <div class="container">
+        <div class="content">
+            <div class="centered-content">
+                <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
+                    <img src="/static/images/logo.png" alt="Logo" style="width: 200px; height: auto; margin-right: 25px;">
+                    <h2>{{ details.current_job }}</h2>
+                </div>
+                <div class="image-container">
+                    <img id="liveImage" src="/current_image" alt="Current Image">
+                    <img id="modelImage" src="/current_model_image" alt="Model Image" style="width: 200px; height: 200px;">
+                    <img id="depthmapImage" src="/current_depthmap_image" alt="Depthmap Image" style="width: 200px; height: 200px;">
+                    <img id="errmapdepthImage" src="/current_errmapdepth_image" alt="Errmapdepth Image" style="width: 200px; height: 200px;">
+                </div>
+                <div>
+                    <p>{{ details.latest_message }}</p>
+                </div>
+                <div class="buttons">
+                    <form action="/home_xyz_func" method="post">
+                        <button type="submit">Home Printer</button>
+                    </form>
+                    <form action="/preheat_100c" method="post">
+                        <button type="submit">Preheat On</button>
+                    </form>
+                    <form action="/preheat_0c" method="post">
+                        <button type="submit">Preheat Off</button>
+                    </form>
+                    <form action="/start_bbl_screen_vnc" method="post">
+                        <button type="submit">Start VNC</button>
+                    </form>
+                    <button onclick="toggleDarkMode()">Dark Mode</button>
+                </div>
+            </div>
         </div>
-        <div style="display: flex; justify-content: center; width: 100%;">
-            <img id="liveImage" src="/current_image" alt="Current Image">
-        </div>
-        <div style="display: flex; justify-content: center; width: 100%;">
-            <img id="modelImage" src="/current_model_image" alt="Model Image" style="width: 200px; height: 200px;">
-            <img id="depthmapImage" src="/current_depthmap_image" alt="Depthmap Image" style="width: 200px; height: 200px;">
-            <img id="errmapdepthImage" src="/current_errmapdepth_image" alt="Errmapdepth Image" style="width: 200px; height: 200px;">
-        </div>
-        <!---<p>Progress: {{ details.progress }}%</p>
-        <h2>Temperatures</h2>
-        <p>Nozzle: {{ details.temperature.nozzle }}°C</p>
-        <p>Bed: {{ details.temperature.bed }}°C</p>-->
-
-        <!---<div id="vnc-display" style="width: 800px; height: 600px;"></div>-->
-        <div>
-            <p>{{ details.latest_message }}</p>
-        </div>
-        <div style="display: flex; justify-content: center; gap: 10px;">
-            <form action="/home_xyz_func" method="post">
-                <button type="submit" style="font-size: 20px; padding: 10px 20px;">Home Printer</button>
-            </form>
-            <form action="/preheat_100c" method="post">
-                <button type="submit" style="font-size: 20px; padding: 10px 20px;">Preheat On</button>
-            </form>
-            <form action="/preheat_0c" method="post">
-                <button type="submit" style="font-size: 20px; padding: 10px 20px;">Preheat Off</button>
-            </form>
-            <form action="/start_bbl_screen_vnc" method="post">
-                <button type="submit" style="font-size: 20px; padding: 10px 20px;">Start VNC</button>
-            </form>
-            <button onclick="toggleDarkMode()" style="font-size: 14px; padding: 5px 10px; position: absolute; bottom: 10px; right: 10px;">Dark Mode</button>
-        </div>
-        
     </div>
+    <footer>
+        <p>&copy; 2023 X1Plus WebHMI</p>
+    </footer>
 </body>
 </html>
