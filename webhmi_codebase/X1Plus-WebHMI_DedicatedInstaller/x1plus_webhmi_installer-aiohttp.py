@@ -101,7 +101,7 @@ def full_installation(ip, password):
     print("Installing pip and requirements. This may take a few minutes...")
     # Execute Python and Pip installation commands on the remote server
     execute_remote_command('/opt/python/bin/python3 /usr/bin/get-pip.py', ip, username, password)
-    execute_remote_command('/opt/python/bin/python3 -m pip install aiohttp', ip, username, password)
+    #execute_remote_command('/opt/python/bin/python3 -m pip install aiohttp', ip, username, password)
     execute_remote_command('/opt/python/bin/python3 -m pip install aiohttp_jinja2', ip, username, password)
 
     notify_user("Installation Complete. Reboot your printer to enable the web interface on port 5001.")

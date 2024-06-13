@@ -24,7 +24,7 @@
             background-color: #333;
             color: white;
             text-align: center;
-            padding: 10px 0;
+            padding: 3px 0;
         }
         .content {
             background: white;
@@ -75,6 +75,17 @@
         .dark-mode header, .dark-mode footer {
             background-color: #222;
         }
+        .popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
     </style>
     <script>
         function refreshImage() {
@@ -93,12 +104,25 @@
             var body = document.body;
             body.classList.toggle('dark-mode');
         }
+
+        function showPopup(message) {
+            var popup = document.getElementById('popup');
+            popup.innerText = message;
+            popup.style.display = 'block';
+            setTimeout(function() {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var latestMessage = "{{ details.latest_message }}";
+            if (latestMessage) {
+                showPopup(latestMessage);
+            }
+        });
     </script>
 </head>
 <body>
-    <header>
-        <h1>X1Plus WebHMI</h1>
-    </header>
     <div class="container">
         <div class="content">
             <div class="centered-content">
@@ -112,9 +136,6 @@
                     <img id="depthmapImage" src="/current_depthmap_image" alt="Depthmap Image" style="width: 200px; height: 200px;">
                     <img id="errmapdepthImage" src="/current_errmapdepth_image" alt="Errmapdepth Image" style="width: 200px; height: 200px;">
                 </div>
-                <div>
-                    <p>{{ details.latest_message }}</p>
-                </div>
                 <div class="buttons">
                     <form action="/home_xyz_func" method="post">
                         <button type="submit">Home Printer</button>
@@ -126,15 +147,17 @@
                         <button type="submit">Preheat Off</button>
                     </form>
                     <form action="/start_bbl_screen_vnc" method="post">
-                        <button type="submit">Start VNC</button>
+                        <button type="submit">Enable VNC</button>
                     </form>
                     <button onclick="toggleDarkMode()">Dark Mode</button>
                 </div>
             </div>
         </div>
     </div>
+    <div id="popup" class="popup"></div>
     <footer>
-        <p>&copy; 2023 X1Plus WebHMI</p>
+        <p>&copy; X1Plus Team</p>
     </footer>
 </body>
 </html>
+
